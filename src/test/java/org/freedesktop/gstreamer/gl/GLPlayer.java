@@ -15,11 +15,6 @@ import javax.swing.WindowConstants;
 
 import org.freedesktop.gstreamer.Gst;
 import org.freedesktop.gstreamer.Version;
-import org.freedesktop.gstreamer.gl.GLAPI;
-import org.freedesktop.gstreamer.gl.GLContext;
-import org.freedesktop.gstreamer.gl.GLDisplay;
-import org.freedesktop.gstreamer.gl.GLPlatform;
-import org.freedesktop.gstreamer.gl.GLWrappedContext;
 
 public class GLPlayer {
 
