@@ -1,18 +1,15 @@
 package org.freedesktop.gstreamer.lowlevel.gl;
 
-import org.freedesktop.gstreamer.Memory;
-import org.freedesktop.gstreamer.gl.GLMemory;
-import org.freedesktop.gstreamer.lowlevel.GstNative;
-
 public interface GstGLMemoryAPI extends com.sun.jna.Library {
-
-	GstGLMemoryAPI GSTGLMEMORY_API = GstNative.load("gstgl", GstGLMemoryAPI.class);
-
-	boolean gst_is_gl_memory(Memory mem);
-
-	int gst_gl_memory_get_texture_id(GLMemory mem);
-
-	int gst_gl_memory_get_texture_width(GLMemory mem);
-
-	int gst_gl_memory_get_texture_height(GLMemory mem);
+	
+	/**
+	 * GST_MAP_GL:
+	 *
+	 * Flag indicating that we should map the GL object instead of to system memory.
+	 *
+	 * Combining #GST_MAP_GL with #GST_MAP_WRITE has the same semantics as though
+	 * you are writing to OpenGL. Conversely, combining #GST_MAP_GL with
+	 * #GST_MAP_READ has the same semantics as though you are reading from OpenGL.
+	 */
+	public static int GST_MAP_GL = (1 << 16) << 1; // GST_MAP_FLAG_LAST << 1
 }

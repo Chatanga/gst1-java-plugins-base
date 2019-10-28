@@ -45,6 +45,14 @@ public class VideoPipeline {
 			}
 		});
 
+		System.out.println(String.join("\n", //
+				"┌──────────────────────────────────────────────────────────────────────┐", //
+				"│ Note: the corrupted graphic content at the begining of the video is  │", //
+				"│       expected with our shared GL context because the 'glupload'     │", //
+				"│       doesn't flush its textures after each render.                  │", //
+				"└──────────────────────────────────────────────────────────────────────┘" //
+		));
+
 		Element videoTestSrc = ElementFactory.make("videotestsrc", "myVideoTestSrc");
 		Element capsFilter = ElementFactory.make("capsfilter", "myCapsFilter");
 		capsFilter.setCaps(new Caps("video/x-raw,format=RGB"));

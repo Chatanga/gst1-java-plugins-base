@@ -14,7 +14,6 @@ public class Types implements NativeObject.TypeProvider {
 		return Stream.of( //
 				registration(GLDisplay.class, GLDisplay.GTYPE_NAME, GLDisplay::new),
 				registration(GLContext.class, GLContext.GTYPE_NAME, GLContext::new),
-				registration(GLWrappedContext.class, GLWrappedContext.GTYPE_NAME, GLWrappedContext::new),
-				registration(GLMemoryPBOAllocator.class, GLMemoryPBOAllocator.GTYPE_NAME, GLMemoryPBOAllocator::new));
+				registration(GLWrappedContext.class, GLWrappedContext.GTYPE_NAME, GLWrappedContext::new));
 	}
 }

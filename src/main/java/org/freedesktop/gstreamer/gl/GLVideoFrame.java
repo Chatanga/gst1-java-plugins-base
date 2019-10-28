@@ -10,6 +10,17 @@ import org.freedesktop.gstreamer.video.VideoInfo;
 import com.sun.jna.Pointer;
 
 public class GLVideoFrame {
+	
+	/**
+	 * GST_MAP_GL:
+	 *
+	 * Flag indicating that we should map the GL object instead of to system memory.
+	 *
+	 * Combining #GST_MAP_GL with #GST_MAP_WRITE has the same semantics as though
+	 * you are writing to OpenGL. Conversely, combining #GST_MAP_GL with
+	 * #GST_MAP_READ has the same semantics as though you are reading from OpenGL.
+	 */
+	public static int GST_MAP_GL = (1 << 16) << 1; // GST_MAP_FLAG_LAST << 1
 
 	private final GstVideoFrameStruct struct;
 
@@ -26,7 +37,7 @@ public class GLVideoFrame {
 	}
 
 	public int[] map(VideoInfo info, Buffer buffer) {
-		int flags = GstBufferAPI.GST_MAP_READ | GLBaseMemory.GST_MAP_GL;
+		int flags = GstBufferAPI.GST_MAP_READ | GST_MAP_GL;
 		if (GstVideoFrameAPI.GSTVIDEOFRAME_API.gst_video_frame_map(struct, info, buffer, flags)) {
 			//textures = new int[struct.data.length];
 			textures = new int[buffer.getMemoryCount()];
