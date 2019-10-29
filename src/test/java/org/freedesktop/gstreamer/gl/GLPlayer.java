@@ -86,12 +86,30 @@ public class GLPlayer {
 	 * with it.
 	 */
 	private static GLContext getGLContext(GLDisplay glDisplay) {
-		EnumSet<GLAPI> apis = EnumSet.of(GLAPI.forName(System.getProperty("GST_GL_API", "opengl")));
-		GLPlatform platform = GLPlatform.forName(System.getProperty("GST_GL_PLATFORM", "glx"));
+		EnumSet<GLAPI> apis = EnumSet.of(GLAPI.forName(getSystemProperty("GST_GL_API", "opengl")));
+
+		// egl: the EGL platform used primarily with the X11, wayland and android window
+		// systems as well as on embedded Linux
+		// glx: the GLX platform used primarily with the X11 window system
+		// wgl: the WGL platform used primarily on Windows
+		// cgl: the CGL platform used primarily on OS X
+		// eagl: the EAGL platform used primarily on iOS
+		GLPlatform platform = GLPlatform.forName(getSystemProperty("GST_GL_PLATFORM", "glx"));
+
 		long handle = GLContext.getCurrentGLContext(platform);
 		if (handle == 0) {
 			throw new AssertionError("No current GL context.");
 		}
 		return new GLWrappedContext(glDisplay, handle, platform, apis);
+	}
+
+	private static String getSystemProperty(String key, String def) {
+		String value = System.getProperty(key);
+		if (value != null) {
+			return value;
+		} else {
+			System.out.format("Assuming default value '%s' for undefined system property %s.	%n", def, key);
+			return def;
+		}
 	}
 }

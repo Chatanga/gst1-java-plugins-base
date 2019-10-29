@@ -82,21 +82,12 @@ public class VideoPipeline {
 			System.out.println("-> Providing display context.");
 			break;
 
-		case "gst.x11.display.handle":
-			break;
-
-		case "GstWaylandDisplayHandleContextType":
-			break;
-
 		case "gst.gl.app_context":
 			Context appContext = new Context(contextType);
 			glContext.setToContext(appContext);
 			((Element) message.getSource()).setContext(appContext);
 			System.out.println("-> Providing application context (GL context).");
 			break;
-
-		default:
-			System.err.println("Unknown context type: " + contextType);
 		}
 	}
 }
