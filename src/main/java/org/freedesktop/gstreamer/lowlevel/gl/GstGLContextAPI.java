@@ -22,7 +22,7 @@ public interface GstGLContextAPI extends com.sun.jna.Library {
 
 	@CallerOwnsReturn Pointer ptr_gst_gl_context_new(GLDisplay display);
 
-	GLContext gst_gl_context_new(GLDisplay display);
+	@CallerOwnsReturn GLContext gst_gl_context_new(GLDisplay display);
 
 	void gst_gl_context_finalize(Pointer context);
 

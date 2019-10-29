@@ -49,7 +49,10 @@ public class VideoPipeline {
 				"┌──────────────────────────────────────────────────────────────────────┐", //
 				"│ Note: the corrupted graphic content at the begining of the video is  │", //
 				"│       expected with our shared GL context because the 'glupload'     │", //
-				"│       doesn't flush its textures after each render.                  │", //
+				"│       element doesn't flush its textures after each render. I don't  │", //
+				"│       know (yet) if it is a bug, a known constraint (of being in the │", //
+				"│       same thread) or a something else. By the way, the 'nvdec'      │", //
+				"│       element doesn't exhibit this problem.                          │", //
 				"└──────────────────────────────────────────────────────────────────────┘" //
 		));
 
