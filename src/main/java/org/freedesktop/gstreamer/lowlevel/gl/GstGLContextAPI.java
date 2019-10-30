@@ -1,56 +1,51 @@
 package org.freedesktop.gstreamer.lowlevel.gl;
 
-import org.freedesktop.gstreamer.gl.GLAPI;
-import org.freedesktop.gstreamer.gl.GLContext;
-import org.freedesktop.gstreamer.gl.GLDisplay;
-import org.freedesktop.gstreamer.gl.GLPlatform;
-import org.freedesktop.gstreamer.gl.GLWrappedContext;
 import org.freedesktop.gstreamer.lowlevel.GType;
 import org.freedesktop.gstreamer.lowlevel.GstNative;
 import org.freedesktop.gstreamer.lowlevel.annotations.CallerOwnsReturn;
 
 import com.sun.jna.Pointer;
 
-/**
- * GstGLContext functions
+/*
+ * https://gstreamer.freedesktop.org/documentation/gl/gstglcontext.html
+ * 
+ * https://gitlab.freedesktop.org/gstreamer/gst-plugins-base/blob/master/gst-libs/gst/gl/gstglcontext.h
+ * https://gitlab.freedesktop.org/gstreamer/gst-plugins-base/blob/master/gst-libs/gst/gl/gstglcontext.c
  */
 public interface GstGLContextAPI extends com.sun.jna.Library {
 
-	GstGLContextAPI GSTGLCONTEXT_API = GstNative.load("gstgl", GstGLContextAPI.class);
+    GstGLContextAPI GSTGLCONTEXT_API = GstNative.load("gstgl", GstGLContextAPI.class);
 
-	// GType gst_gl_wrapped_context_get_type();
+    // GType gst_gl_wrapped_context_get_type();
 
-	@CallerOwnsReturn Pointer ptr_gst_gl_context_new(GLDisplay display);
+    @CallerOwnsReturn
+    GstGLContextPtr gst_gl_context_new(GstGLDisplayPtr display);
 
-	@CallerOwnsReturn GLContext gst_gl_context_new(GLDisplay display);
+    GType gst_gl_wrapped_context_get_type();
 
-	void gst_gl_context_finalize(Pointer context);
+    @CallerOwnsReturn
+    GstWrappedGLContextPtr gst_gl_context_new_wrapped(GstGLDisplayPtr display, long handle, int  context_type, int apis);
 
-	GType gst_gl_wrapped_context_get_type();
+    boolean gst_gl_context_create(GstGLContextPtr context, GstGLContextPtr other_context, Pointer[] error);
 
-	@CallerOwnsReturn Pointer ptr_gst_gl_context_new_wrapped(GLDisplay display, long handle, GLPlatform context_type, int apis);
+    void gst_gl_context_destroy(GstGLContextPtr context);
 
-	@CallerOwnsReturn GLWrappedContext gst_gl_context_new_wrapped(GLDisplay display, long handle, GLPlatform context_type, int apis);
+    // void gst_gl_context_finalize(GstGLContextPtr context);
 
-	boolean gst_gl_context_create(GLContext context, GLContext other_context, Pointer[] error);
+    GstGLContextPtr gst_gl_context_get_current();
 
-	void gst_gl_context_destroy(Pointer /* GLContext */ context);
+    GstGLDisplayPtr gst_gl_context_get_display(GstGLContextPtr context);
 
-	// void gst_gl_context_finalize(Pointer context);
+    int gst_gl_context_get_gl_platform(GstGLContextPtr context);
 
-	GLContext gst_gl_context_get_current();
+    int gst_gl_context_get_gl_api(GstGLContextPtr context);
 
-	GLDisplay gst_gl_context_get_display(GLContext context);
+    // GObject gst_gl_context_get_thread(GstGLContextPtr context);
 
-	GLPlatform gst_gl_context_get_gl_platform(GLContext context);
+    // long gst_gl_wrapped_context_get_gl_context(GstGLContextPtr context);
 
-	GLAPI gst_gl_context_get_gl_api(GLContext context);
+    boolean gst_gl_context_activate(GstGLContextPtr context, boolean activate);
 
-	// GObject gst_gl_context_get_thread(GLContext context);
+    long gst_gl_context_get_current_gl_context(int context_type);
 
-	// long gst_gl_wrapped_context_get_gl_context(GLContext context);
-
-	boolean gst_gl_context_activate(GLContext context, boolean activate);
-
-	long gst_gl_context_get_current_gl_context(GLPlatform context_type);
 }

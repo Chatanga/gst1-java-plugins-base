@@ -9,9 +9,9 @@ import org.freedesktop.gstreamer.glib.NativeObject.TypeRegistration;
 
 public class Types implements NativeObject.TypeProvider {
 
-	@Override
-	public Stream<TypeRegistration<?>> types() {
-		return Stream.of( //
-				registration(VideoInfo.class, VideoInfo.GTYPE_NAME, VideoInfo::new));
-	}
+    @Override
+    public Stream<TypeRegistration<?>> types() {
+        return Stream.of(registration(VideoInfo.class, VideoInfo.GTYPE_NAME, VideoInfo::new));
+    }
+
 }

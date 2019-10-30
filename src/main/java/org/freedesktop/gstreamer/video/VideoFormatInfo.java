@@ -15,4 +15,5 @@ public class VideoFormatInfo {
 	public VideoFormat getFormat() {
 		return struct.format;
 	}
+
 }

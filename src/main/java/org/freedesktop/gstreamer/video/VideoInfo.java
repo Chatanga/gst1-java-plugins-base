@@ -1,81 +1,85 @@
 package org.freedesktop.gstreamer.video;
 
 import org.freedesktop.gstreamer.Caps;
-import org.freedesktop.gstreamer.glib.NativeObject;
-import org.freedesktop.gstreamer.glib.Natives;
+import org.freedesktop.gstreamer.MiniObject;
 import org.freedesktop.gstreamer.lowlevel.GPointer;
 import org.freedesktop.gstreamer.lowlevel.video.GstVideoInfoAPI;
 import org.freedesktop.gstreamer.lowlevel.video.GstVideoInfoAPI.GstVideoInfoStruct;
+import org.freedesktop.gstreamer.lowlevel.video.GstVideoInfoPtr;
 
-public class VideoInfo extends NativeObject {
+public class VideoInfo extends MiniObject {
 
-	public static final String GTYPE_NAME = "GstVideoInfo";
+    public static final String GTYPE_NAME = "GstVideoInfo";
 
-	public static VideoInfo create() {
-		return GstVideoInfoAPI.GSTVIDEOINFO_API.gst_video_info_new();
-	}
+    private final Handle handle;
 
-	public static VideoInfo createFromCaps(Caps caps) {
-		VideoInfo videoInfo = GstVideoInfoAPI.GSTVIDEOINFO_API.gst_video_info_new();
-		if (videoInfo.setCaps(caps)) {
-			return videoInfo;
-		} else {
-			return null;
-		}
-	}
+    private final GstVideoInfoStruct struct;
 
-	private GstVideoInfoStruct struct;
+    /**
+     * Creates a newly allocated video info with default values.
+     */
+    public VideoInfo() {
+        this(new Handle(GstVideoInfoAPI.GSTVIDEOINFO_API.gst_video_info_new(), true), true);
+    }
 
-	/**
-	 * Creates a newly allocated video info with default values.
-	 */
-	public VideoInfo() {
-		this(Natives.initializer(GstVideoInfoAPI.GSTVIDEOINFO_API.ptr_gst_video_info_new()));
-	}
+    /**
+     * Creates a newly allocated video info with default values.
+     */
+    public VideoInfo(Caps caps) {
+        this();
+        setCaps(caps);
+    }
 
-	/**
-	 * This constructor is for internal use only.
-	 * 
-	 * @param init initialization data.
-	 */
-	protected VideoInfo(Initializer init) {
-		super(new Handle(init.ptr, init.ownsHandle));
-		this.struct = new GstVideoInfoStruct(init.ptr.getPointer());
-	}
+    VideoInfo(Handle handle, boolean needRef) {
+        super(handle, needRef);
+        this.handle = handle;
+        this.struct = new GstVideoInfoStruct(handle.getPointer().getPointer());
+    }
 
-	public boolean setCaps(Caps caps) {
-		if (GstVideoInfoAPI.GSTVIDEOINFO_API.gst_video_info_from_caps(this, caps)) {
-			struct.read();
-			return true;
-		}
-		return false;
-	}
+    VideoInfo(Initializer init) {
+        this(new Handle(init.ptr.as(GstVideoInfoPtr.class, GstVideoInfoPtr::new), init.ownsHandle), init.needRef);
+    }
 
-	public VideoFormatInfo getFormatInfo() {
-		return new VideoFormatInfo(struct.finfo);
-	}
+    public boolean setCaps(Caps caps) {
+        if (GstVideoInfoAPI.GSTVIDEOINFO_API.gst_video_info_from_caps(handle.getPointer(), caps)) {
+            struct.read();
+            return true;
+        }
+        return false;
+    }
 
-	public int getFlags() {
-		return struct.flags;
-	}
+    public VideoFormatInfo getFormatInfo() {
+        return new VideoFormatInfo(struct.finfo);
+    }
 
-	public int getWidth() {
-		return struct.width;
-	}
+    public int getFlags() {
+        return struct.flags;
+    }
 
-	public int getHeight() {
-		return struct.height;
-	}
+    public int getWidth() {
+        return struct.width;
+    }
 
-	private static final class Handle extends NativeObject.Handle {
+    public int getHeight() {
+        return struct.height;
+    }
 
-		public Handle(GPointer ptr, boolean ownsHandle) {
-			super(ptr, ownsHandle);
-		}
+    private static final class Handle extends MiniObject.Handle {
 
-		@Override
-		protected void disposeNativeHandle(GPointer ptr) {
-			GstVideoInfoAPI.GSTVIDEOINFO_API.gst_video_info_free(ptr.getPointer());
-		}
-	}
+        public Handle(GstVideoInfoPtr ptr, boolean ownsHandle) {
+            super(ptr, ownsHandle);
+        }
+
+        @Override
+        protected GstVideoInfoPtr getPointer() {
+            return (GstVideoInfoPtr) super.getPointer();
+        }
+
+        @Override
+        protected void disposeNativeHandle(GPointer ptr) {
+            GstVideoInfoAPI.GSTVIDEOINFO_API.gst_video_info_free((GstVideoInfoPtr) ptr);
+        }
+
+    }
+
 }

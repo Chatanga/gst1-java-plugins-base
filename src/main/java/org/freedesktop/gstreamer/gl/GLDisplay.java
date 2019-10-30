@@ -3,40 +3,59 @@ package org.freedesktop.gstreamer.gl;
 import org.freedesktop.gstreamer.Context;
 import org.freedesktop.gstreamer.GstObject;
 import org.freedesktop.gstreamer.glib.Natives;
+import org.freedesktop.gstreamer.lowlevel.gl.GstGLContextPtr;
 import org.freedesktop.gstreamer.lowlevel.gl.GstGLDisplayAPI;
+import org.freedesktop.gstreamer.lowlevel.gl.GstGLDisplayPtr;
 
 public class GLDisplay extends GstObject {
 
     public static final String GTYPE_NAME = "GstGLDisplay";
 
+    private final Handle handle;
+
     /**
      * Creates a new GLDisplay using the system property GST_GL_PLATFORM.
      */
     public GLDisplay() {
-        this(Natives.initializer(GstGLDisplayAPI.GSTGLDISPLAY_API.ptr_gst_gl_display_new()));
+        this(new Handle(GstGLDisplayAPI.GSTGLDISPLAY_API.gst_gl_display_new(), true), true);
     }
 
-    /**
-     * This constructor is for internal use only.
-     * 
-     * @param init initialization data.
-     */
+    protected GLDisplay(Handle handle, boolean needRef) {
+        super(handle, needRef);
+        this.handle = handle;
+    }
+
     protected GLDisplay(Initializer init) {
-        super(init);
+        this(new Handle(init.ptr.as(GstGLDisplayPtr.class, GstGLDisplayPtr::new), init.ownsHandle), init.needRef);
     }
 
     public void setToContext(Context context) {
         // The static GLDisplay type is used, not the real instance type.
-        context.getWritableStructure().setObject("gst.gl.GLDisplay", GTYPE_NAME, this);
+        context.getWritableStructure().setObject("gst.gl.GLDisplay", GTYPE_NAME, this); // TODO this?
         // The native side also provides a dedicated setter doing the same thing:
         // gst_context_set_gl_display'.
     }
 
     public GLAPI getGLAPI() {
-        return GstGLDisplayAPI.GSTGLDISPLAY_API.gst_gl_display_get_gl_api(this);
+        return GLAPI.valueOf(GstGLDisplayAPI.GSTGLDISPLAY_API.gst_gl_display_get_gl_api(handle.getPointer()));
     }
 
     public boolean addContext(GLContext context) {
-        return GstGLDisplayAPI.GSTGLDISPLAY_API.gst_gl_display_add_context(this, context);
+        GstGLContextPtr gstGLContextPtr = Natives.getPointer(context).as(GstGLContextPtr.class, GstGLContextPtr::new);
+        return GstGLDisplayAPI.GSTGLDISPLAY_API.gst_gl_display_add_context(handle.getPointer(), gstGLContextPtr);
     }
+
+    protected static class Handle extends GstObject.Handle {
+
+        public Handle(GstGLDisplayPtr ptr, boolean ownsHandle) {
+            super(ptr, ownsHandle);
+        }
+
+        @Override
+        protected GstGLDisplayPtr getPointer() {
+            return (GstGLDisplayPtr) super.getPointer();
+        }
+
+    }
+
 }

@@ -6,12 +6,19 @@ import java.util.List;
 import org.freedesktop.gstreamer.Caps;
 import org.freedesktop.gstreamer.lowlevel.GstAPI;
 import org.freedesktop.gstreamer.lowlevel.GstNative;
+import org.freedesktop.gstreamer.lowlevel.annotations.CallerOwnsReturn;
 import org.freedesktop.gstreamer.lowlevel.video.GstVideoColorAPI.GstVideoColorimetryStruct;
 import org.freedesktop.gstreamer.video.VideoFormat;
 import org.freedesktop.gstreamer.video.VideoInfo;
 
 import com.sun.jna.Pointer;
 
+/*
+ * https://gstreamer.freedesktop.org/documentation/video/video-info.html
+ * 
+ * https://gitlab.freedesktop.org/gstreamer/gst-plugins-base/blob/master/gst-libs/gst/video/video-info.h
+ * https://gitlab.freedesktop.org/gstreamer/gst-plugins-base/blob/master/gst-libs/gst/video/video-info.c
+ */
 public interface GstVideoInfoAPI extends com.sun.jna.Library {
 
 	int GST_VIDEO_MAX_PLANES = 4;
@@ -123,15 +130,14 @@ public interface GstVideoInfoAPI extends com.sun.jna.Library {
 		}
 	}
 
-	Pointer ptr_gst_video_info_new();
+	@CallerOwnsReturn GstVideoInfoPtr gst_video_info_new();
 
-	VideoInfo gst_video_info_new();
+	void gst_video_info_free(GstVideoInfoPtr info);
 
-	void gst_video_info_free(Pointer info);
-
-	boolean gst_video_info_set_format(VideoInfo info, VideoFormat format, int width, int height);
+	boolean gst_video_info_set_format(GstVideoInfoPtr info, VideoFormat format, int width, int height);
 
 	void gst_video_info_init(VideoInfo info);
 
-	boolean gst_video_info_from_caps(VideoInfo info, Caps caps);
+	boolean gst_video_info_from_caps(GstVideoInfoPtr info, Caps caps);
+
 }

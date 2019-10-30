@@ -8,10 +8,15 @@ import org.freedesktop.gstreamer.lowlevel.GstAPI;
 import org.freedesktop.gstreamer.lowlevel.GstBufferAPI.MapInfoStruct;
 import org.freedesktop.gstreamer.lowlevel.GstNative;
 import org.freedesktop.gstreamer.lowlevel.video.GstVideoInfoAPI.GstVideoInfoStruct;
-import org.freedesktop.gstreamer.video.VideoInfo;
 
 import com.sun.jna.Pointer;
 
+/*
+ * https://gstreamer.freedesktop.org/documentation/video/video-frame.html
+ * 
+ * https://gitlab.freedesktop.org/gstreamer/gst-plugins-base/blob/master/gst-libs/gst/video/video-frame.h
+ * https://gitlab.freedesktop.org/gstreamer/gst-plugins-base/blob/master/gst-libs/gst/video/video-frame.c
+ */
 public interface GstVideoFrameAPI extends com.sun.jna.Library {
 
 	GstVideoFrameAPI GSTVIDEOFRAME_API = GstNative.load("gstvideo", GstVideoFrameAPI.class);
@@ -41,7 +46,8 @@ public interface GstVideoFrameAPI extends com.sun.jna.Library {
 		}
 	}
 
-	boolean gst_video_frame_map(GstVideoFrameStruct frame, VideoInfo info, Buffer buffer, int flags);
+	boolean gst_video_frame_map(GstVideoFrameStruct frame, GstVideoInfoPtr info, Buffer buffer, int flags);
 
 	void gst_video_frame_unmap(GstVideoFrameStruct frame);
+
 }

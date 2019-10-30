@@ -108,7 +108,7 @@ public class GLPlayer {
 		if (value != null) {
 			return value;
 		} else {
-			System.out.format("Assuming default value '%s' for undefined system property %s.	%n", def, key);
+			System.out.format("Assuming default value '%s' for undefined system property %s.%n", def, key);
 			return def;
 		}
 	}

@@ -1,37 +1,40 @@
 package org.freedesktop.gstreamer.gl;
 
-import static org.freedesktop.gstreamer.lowlevel.gl.GstGLContextAPI.GSTGLCONTEXT_API;
-
 import org.freedesktop.gstreamer.Context;
 import org.freedesktop.gstreamer.GstObject;
 import org.freedesktop.gstreamer.glib.Natives;
 import org.freedesktop.gstreamer.lowlevel.GPointer;
-import org.freedesktop.gstreamer.lowlevel.GstObjectPtr;
+import org.freedesktop.gstreamer.lowlevel.gl.GstGLContextAPI;
+import org.freedesktop.gstreamer.lowlevel.gl.GstGLContextPtr;
+import org.freedesktop.gstreamer.lowlevel.gl.GstGLDisplayPtr;
 
 // An OpenGL context, not a Gstreamer context.
 public class GLContext extends GstObject {
 
     public static final String GTYPE_NAME = "GstGLContext";
 
+    private final Handle handle;
+
     /**
      * Creates a new GLContext using the specified display.
      */
     public GLContext(GLDisplay display) {
-        this(Natives.initializer(GSTGLCONTEXT_API.ptr_gst_gl_context_new(display)));
+        this(new Handle(GstGLContextAPI.GSTGLCONTEXT_API.gst_gl_context_new( //
+                Natives.getPointer(display).as(GstGLDisplayPtr.class, GstGLDisplayPtr::new)), true), true);
     }
 
-    /**
-     * This constructor is for internal use only.
-     * 
-     * @param init initialization data.
-     */
-    protected GLContext(Initializer init) {
-        super(new Handle(init.ptr.as(GstObjectPtr.class, GstObjectPtr::new), init.ownsHandle), init.needRef);
+    GLContext(Handle handle, boolean needRef) {
+        super(handle, needRef);
+        this.handle = handle;
+    }
+
+    GLContext(Initializer init) {
+        this(new Handle(init.ptr.as(GstGLContextPtr.class, GstGLContextPtr::new), init.ownsHandle), init.needRef);
     }
 
     public void setToContext(Context context) {
         // The static GLDisplay type is used, not the real instance type.
-        context.getWritableStructure().setObject("context", GTYPE_NAME, this);
+        context.getWritableStructure().setObject("context", GTYPE_NAME, this); // TODO this?
     }
 
     /**
@@ -40,19 +43,25 @@ public class GLContext extends GstObject {
      * @param platform
      * @return the OpenGL context handle or NULL
      */
-    public static long getCurrentGLContext(final GLPlatform platform) {
-        return GSTGLCONTEXT_API.gst_gl_context_get_current_gl_context(platform);
+    public static long getCurrentGLContext(GLPlatform platform) {
+        return GstGLContextAPI.GSTGLCONTEXT_API.gst_gl_context_get_current_gl_context(platform.intValue());
     }
 
-    private static final class Handle extends GstObject.Handle {
+    protected static class Handle extends GstObject.Handle {
 
-        public Handle(GstObjectPtr ptr, boolean ownsHandle) {
+        public Handle(GstGLContextPtr ptr, boolean ownsHandle) {
             super(ptr, ownsHandle);
         }
 
         @Override
-        protected void disposeNativeHandle(GPointer ptr) {
-            GSTGLCONTEXT_API.gst_gl_context_destroy(ptr.getPointer());
+        protected GstGLContextPtr getPointer() {
+            return (GstGLContextPtr) super.getPointer();
         }
+
+        @Override
+        protected void disposeNativeHandle(GPointer ptr) {
+            GstGLContextAPI.GSTGLCONTEXT_API.gst_gl_context_destroy((GstGLContextPtr) ptr);
+        }
+
     }
 }

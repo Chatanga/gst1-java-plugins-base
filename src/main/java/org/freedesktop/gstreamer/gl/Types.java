@@ -16,4 +16,5 @@ public class Types implements NativeObject.TypeProvider {
 				registration(GLContext.class, GLContext.GTYPE_NAME, GLContext::new),
 				registration(GLWrappedContext.class, GLWrappedContext.GTYPE_NAME, GLWrappedContext::new));
 	}
+
 }

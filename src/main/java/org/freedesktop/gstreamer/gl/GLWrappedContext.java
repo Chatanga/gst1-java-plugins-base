@@ -18,42 +18,55 @@
 
 package org.freedesktop.gstreamer.gl;
 
-import static org.freedesktop.gstreamer.lowlevel.gl.GstGLContextAPI.GSTGLCONTEXT_API;
-
 import java.util.EnumSet;
 
 import org.freedesktop.gstreamer.glib.NativeFlags;
 import org.freedesktop.gstreamer.glib.Natives;
+import org.freedesktop.gstreamer.lowlevel.gl.GstGLContextAPI;
+import org.freedesktop.gstreamer.lowlevel.gl.GstGLDisplayPtr;
+import org.freedesktop.gstreamer.lowlevel.gl.GstWrappedGLContextPtr;
 
 public class GLWrappedContext extends GLContext {
 
-	public static final String GTYPE_NAME = "GstGLWrappedContext";
+    public static final String GTYPE_NAME = "GstGLWrappedContext";
 
-	public GLWrappedContext(GLDisplay display, long handle, GLPlatform context_type, GLAPI apis) {
-		super(Natives.initializer(
-				GSTGLCONTEXT_API.ptr_gst_gl_context_new_wrapped(display, handle, context_type, apis.intValue())));
-	}
+    private final Handle handle;
 
-	/**
-	 * Wrap an existing OpenGL context.
-	 * 
-	 * @param display
-	 * @param handle         the OpenGL context to wrap.
-	 * @param context_type
-	 * @param available_apis
-	 */
-	public GLWrappedContext(final GLDisplay display, long handle, GLPlatform context_type,
-			EnumSet<GLAPI> available_apis) {
-		super(Natives.initializer(GSTGLCONTEXT_API.ptr_gst_gl_context_new_wrapped(display, handle, context_type,
-				NativeFlags.toInt(available_apis))));
-	}
+    /**
+     * Wrap an existing OpenGL context.
+     * 
+     * @param display
+     * @param handle         the OpenGL context to wrap.
+     * @param context_type
+     * @param available_apis
+     */
+    public GLWrappedContext(GLDisplay display, long handle, GLPlatform context_type, EnumSet<GLAPI> available_apis) {
+        this(new Handle(GstGLContextAPI.GSTGLCONTEXT_API.gst_gl_context_new_wrapped(
+                Natives.getPointer(display).as(GstGLDisplayPtr.class, GstGLDisplayPtr::new), handle,
+                context_type.intValue(), NativeFlags.toInt(available_apis)), true), true);
+    }
 
-	/**
-	 * This constructor is for internal use only.
-	 * 
-	 * @param init initialization data.
-	 */
-	protected GLWrappedContext(Initializer init) {
-		super(init);
-	}
+    GLWrappedContext(Handle handle, boolean needRef) {
+        super(handle, needRef);
+        this.handle = handle;
+    }
+
+    GLWrappedContext(Initializer init) {
+        this(new Handle(init.ptr.as(GstWrappedGLContextPtr.class, GstWrappedGLContextPtr::new), init.ownsHandle),
+                init.needRef);
+    }
+
+    protected static class Handle extends GLContext.Handle {
+
+        public Handle(GstWrappedGLContextPtr ptr, boolean ownsHandle) {
+            super(ptr, ownsHandle);
+        }
+
+        @Override
+        protected GstWrappedGLContextPtr getPointer() {
+            return (GstWrappedGLContextPtr) super.getPointer();
+        }
+
+    }
+
 }
