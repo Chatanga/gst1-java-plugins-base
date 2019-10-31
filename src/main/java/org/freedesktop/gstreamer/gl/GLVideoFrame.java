@@ -8,10 +8,14 @@ import org.freedesktop.gstreamer.lowlevel.gl.GstGLMemoryAPI;
 import org.freedesktop.gstreamer.lowlevel.video.GstVideoFrameAPI;
 import org.freedesktop.gstreamer.lowlevel.video.GstVideoFrameAPI.GstVideoFrameStruct;
 import org.freedesktop.gstreamer.lowlevel.video.GstVideoInfoPtr;
+import org.freedesktop.gstreamer.video.VideoFrame;
 import org.freedesktop.gstreamer.video.VideoInfo;
 
 import com.sun.jna.Pointer;
 
+/**
+ * A video frame to map a buffer.
+ */
 public class GLVideoFrame {
 
     private final GstVideoFrameStruct struct;
@@ -28,33 +32,57 @@ public class GLVideoFrame {
         return textures != null;
     }
 
-    public int[] map(VideoInfo info, Buffer buffer) {
-        int flags = GstBufferAPI.GST_MAP_READ | GstGLMemoryAPI.GST_MAP_GL;
-        GstVideoInfoPtr gstVideoInfoPtr = Natives.getPointer(info).as(GstVideoInfoPtr.class, GstVideoInfoPtr::new);
-        if (GstVideoFrameAPI.GSTVIDEOFRAME_API.gst_video_frame_map(struct, gstVideoInfoPtr, buffer, flags)) {
-            textures = new int[buffer.getMemoryCount()];
-            for (int i = 0; i < textures.length; ++i) {
-                Pointer p = struct.data[i];
-                textures[i] = p != null ? p.getInt(0) : 0;
+    /**
+     * Map a GL memory buffer into a GL video frame. It relies on the general video
+     * frame mapping (actually hidden in {@link Buffer#map(boolean) and also in
+     * {@link VideoFrame} but assuming it's a GL buffer.
+     */
+    public boolean map(VideoInfo info, Buffer buffer) {
+        if (textures == null) {
+            int flags = GstBufferAPI.GST_MAP_READ | GstGLMemoryAPI.GST_MAP_GL;
+            GstVideoInfoPtr gstVideoInfoPtr = Natives.getPointer(info).as(GstVideoInfoPtr.class, GstVideoInfoPtr::new);
+            if (GstVideoFrameAPI.GSTVIDEOFRAME_API.gst_video_frame_map(struct, gstVideoInfoPtr, buffer, flags)) {
+                textures = new int[buffer.getMemoryCount()];
+                for (int i = 0; i < textures.length; ++i) {
+                    Pointer p = struct.data[i];
+                    textures[i] = p != null ? p.getInt(0) : 0;
+                }
+                return true;
+            } else {
+                return false;
             }
-            return textures;
         } else {
+            throw new IllegalStateException("GL video frame is already mapped.");
+        }
+
+    }
+
+    /**
+     * Unmap the memory previously mapped.
+     */
+    public void unmap() {
+        if (textures != null) {
+            GstVideoFrameAPI.GSTVIDEOFRAME_API.gst_video_frame_unmap(struct);
             textures = null;
-            return null;
+        } else {
+            throw new IllegalStateException("GL video frame is not mapped.");
         }
     }
 
-    public void unmap() {
-        GstVideoFrameAPI.GSTVIDEOFRAME_API.gst_video_frame_unmap(struct);
-        textures = null;
-    }
-
     public int getTextureId(int index) {
-        return textures[index];
+        if (textures != null) {
+            return textures[index];
+        } else {
+            throw new IllegalStateException("GL video frame is not mapped.");
+        }
     }
 
     public int[] getTextures() {
-        return textures;
+        if (textures != null) {
+            return textures;
+        } else {
+            throw new IllegalStateException("GL video frame is not mapped.");
+        }
     }
 
 }

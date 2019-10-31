@@ -30,15 +30,18 @@ public class GLWrappedContext extends GLContext {
 
     public static final String GTYPE_NAME = "GstGLWrappedContext";
 
-    private final Handle handle;
-
     /**
-     * Wrap an existing OpenGL context.
+     * Wraps an existing OpenGL context into a GLContext.
+     *
+     * Note: The caller is responsible for ensuring that the OpenGL context
+     * represented by handle stays alive while the returned GLContext is active.
      * 
-     * @param display
-     * @param handle         the OpenGL context to wrap.
-     * @param context_type
-     * @param available_apis
+     * @param display        A GLDisplay.
+     * @param handle         The OpenGL context to wrap.
+     * @param context_type   A GLPlatform specifying the type of context in handle.
+     *                       must not be GL_PLATFORM_NONE or GL_PLATFORM_ANY.
+     * @param available_apis GLAPI flags containing the available OpenGL apis in
+     *                       handle. Must not be GL_API_NONE or GL_API_ANY.
      */
     public GLWrappedContext(GLDisplay display, long handle, GLPlatform context_type, EnumSet<GLAPI> available_apis) {
         this(new Handle(GstGLContextAPI.GSTGLCONTEXT_API.gst_gl_context_new_wrapped(
@@ -48,7 +51,7 @@ public class GLWrappedContext extends GLContext {
 
     GLWrappedContext(Handle handle, boolean needRef) {
         super(handle, needRef);
-        this.handle = handle;
+        // No need to keep the handle around.
     }
 
     GLWrappedContext(Initializer init) {

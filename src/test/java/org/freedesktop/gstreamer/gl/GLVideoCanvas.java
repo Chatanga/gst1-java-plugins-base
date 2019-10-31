@@ -125,7 +125,7 @@ public class GLVideoCanvas extends GLCanvas {
 
         private void onNewGlBuffer(Buffer buffer, VideoInfo info, VideoFormat format) {
             GLVideoFrame frame = new GLVideoFrame();
-            if (frame.map(info, buffer) != null) {
+            if (frame.map(info, buffer)) {
                 switch (format) {
                 case RGB:
                     if (frame.getTextures().length != 1) {

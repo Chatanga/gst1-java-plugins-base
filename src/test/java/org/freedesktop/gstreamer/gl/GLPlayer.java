@@ -86,7 +86,7 @@ public class GLPlayer {
 	 * with it.
 	 */
 	private static GLContext getGLContext(GLDisplay glDisplay) {
-		EnumSet<GLAPI> apis = EnumSet.of(GLAPI.forName(getSystemProperty("GST_GL_API", "opengl")));
+		EnumSet<GLAPI> apis = GLAPI.fromString(getSystemProperty("GST_GL_API", "opengl"));
 
 		// egl: the EGL platform used primarily with the X11, wayland and android window
 		// systems as well as on embedded Linux
