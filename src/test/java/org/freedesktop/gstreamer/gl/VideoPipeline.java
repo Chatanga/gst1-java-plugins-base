@@ -45,6 +45,22 @@ public class VideoPipeline {
             }
         });
 
+        /**
+         * https://github.com/GStreamer/gst-plugins-base/blob/master/gst-libs/gst/gl/gstglmemorypbo.c
+         * gstglmemorypbo.c
+         * 
+         * <pre>
+         * static void
+         * _upload_pbo_memory (GstGLMemoryPBO * gl_mem, GstMapInfo * info, GstGLBuffer * pbo, GstMapInfo * pbo_info)
+         * {
+         *   ...
+         *   gl->BindBuffer (GL_PIXEL_UNPACK_BUFFER, pbo_id);
+         *   gst_gl_memory_texsubimage (GST_GL_MEMORY_CAST (gl_mem), NULL);
+         *   gl->Flush (); // +
+         *   gl->BindBuffer (GL_PIXEL_UNPACK_BUFFER, 0);
+         * }
+         * </pre>
+         */
         System.out.println(String.join("\n", //
                 "┌──────────────────────────────────────────────────────────────────────┐", //
                 "│ Note: the corrupted graphic content at the begining of the video is  │", //
