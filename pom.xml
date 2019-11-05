@@ -8,7 +8,7 @@
 	<artifactId>gst1-java-plugins-base</artifactId>
 	<version>0.1.0-SNAPSHOT</version>
 
-	<name>gst1-java-plugins-base</name>
+	<name>GStreamer 1.x Java OpenGL</name>
 	<description>A Java binding extension for the OpenGL part of the
 		GStreamer gst-plugins-base project.
 	</description>
