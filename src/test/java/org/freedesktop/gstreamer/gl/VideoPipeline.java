@@ -4,18 +4,20 @@ import java.util.Objects;
 
 import org.freedesktop.gstreamer.BusSyncHandler;
 import org.freedesktop.gstreamer.BusSyncReply;
-import org.freedesktop.gstreamer.Caps;
 import org.freedesktop.gstreamer.Context;
 import org.freedesktop.gstreamer.Element;
 import org.freedesktop.gstreamer.ElementFactory;
+import org.freedesktop.gstreamer.FlowReturn;
 import org.freedesktop.gstreamer.Pipeline;
-import org.freedesktop.gstreamer.gl.GLContext;
-import org.freedesktop.gstreamer.gl.GLDisplay;
+import org.freedesktop.gstreamer.lowlevel.GstAPI.GstCallback;
 import org.freedesktop.gstreamer.message.Message;
 import org.freedesktop.gstreamer.message.MessageType;
 import org.freedesktop.gstreamer.message.NeedContextMessage;
 
 public class VideoPipeline {
+
+    public static interface CLIENT_DRAW {
+    }
 
     private final GLDisplay glDisplay;
 
@@ -45,40 +47,33 @@ public class VideoPipeline {
             }
         });
 
-        /**
-         * https://github.com/GStreamer/gst-plugins-base/blob/master/gst-libs/gst/gl/gstglmemorypbo.c
-         * gstglmemorypbo.c
-         * 
-         * <pre>
-         * static void
-         * _upload_pbo_memory (GstGLMemoryPBO * gl_mem, GstMapInfo * info, GstGLBuffer * pbo, GstMapInfo * pbo_info)
-         * {
-         *   ...
-         *   gl->BindBuffer (GL_PIXEL_UNPACK_BUFFER, pbo_id);
-         *   gst_gl_memory_texsubimage (GST_GL_MEMORY_CAST (gl_mem), NULL);
-         *   gl->Flush (); // +
-         *   gl->BindBuffer (GL_PIXEL_UNPACK_BUFFER, 0);
-         * }
-         * </pre>
+        /*
+         * Generate a video displaying a Mandelbrot pattern (see
+         * https://gstreamer.freedesktop.org/documentation/opengl/gltestsrc.html?gi-
+         * language=c#gltestsrc:pattern)
          */
-        System.out.println(String.join("\n", //
-                "┌──────────────────────────────────────────────────────────────────────┐", //
-                "│ Note: the corrupted graphic content at the begining of the video is  │", //
-                "│       expected with our shared GL context because the 'glupload'     │", //
-                "│       element doesn't flush its textures after each render. I don't  │", //
-                "│       know (yet) if it is a bug, a known constraint (of being in the │", //
-                "│       same thread) or a something else. By the way, the 'nvdec'      │", //
-                "│       element doesn't exhibit this problem.                          │", //
-                "└──────────────────────────────────────────────────────────────────────┘" //
-        ));
+        Element glTestSrc = ElementFactory.make("gltestsrc", "myVideoTestSrc");
+        glTestSrc.set("pattern", "13");
 
-        Element videoTestSrc = ElementFactory.make("videotestsrc", "myVideoTestSrc");
-        Element capsFilter = ElementFactory.make("capsfilter", "myCapsFilter");
-        capsFilter.setCaps(new Caps("video/x-raw,format=RGB"));
-        Element glUpload = ElementFactory.make("glupload", "myGlUpload");
+        /*
+         * Adding a GL filter (doing nothing) seems to have the nice side effect of
+         * flushing the GL state. Wihtout this filter, the textures aren't in sync
+         * between the two threads and the first textures displayed contain garbage (the
+         * others are simply out of sync I suppose).
+         * 
+         * In addition, this filter (and other GL elements) emits a 'client-draw' signal
+         * in the same thread where the textures are generated, giving us an opportunity
+         * to flush the GL state ourself if needed.
+         */
+        Element glFilterApp = ElementFactory.make("glfilterapp", "myGlFilterApp");
+        glFilterApp.connect(CLIENT_DRAW.class, null, new GstCallback() {
+            public FlowReturn callback(Element element, int texture, int width, int height) {
+                return FlowReturn.OK;
+            }
+        });
 
-        pipe.addMany(videoTestSrc, capsFilter, glUpload, consumer);
-        Pipeline.linkMany(videoTestSrc, capsFilter, glUpload, consumer);
+        pipe.addMany(glTestSrc, glFilterApp, consumer);
+        Pipeline.linkMany(glTestSrc, glFilterApp, consumer);
     }
 
     public Pipeline getPipe() {

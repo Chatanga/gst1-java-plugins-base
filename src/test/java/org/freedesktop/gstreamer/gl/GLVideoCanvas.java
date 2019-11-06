@@ -21,21 +21,21 @@ import com.jogamp.opengl.awt.GLCanvas;
 @SuppressWarnings("serial")
 public class GLVideoCanvas extends GLCanvas {
 
-    private final AppSink videosink;
+    private final AppSink videoSink;
 
     private final AtomicReference<GLVideoFrame> frameDataRef = new AtomicReference<>();
 
     public GLVideoCanvas() {
         super(new GLCapabilities(GLProfile.getDefault()));
 
-        this.videosink = new AppSink(GLVideoCanvas.class.getSimpleName());
-        videosink.set("emit-signals", true);
+        this.videoSink = new AppSink(GLVideoCanvas.class.getSimpleName());
+        videoSink.set("emit-signals", true);
 
         AppSinkListener listener = new AppSinkListener();
-        videosink.connect((AppSink.NEW_SAMPLE) listener);
-        videosink.connect((AppSink.NEW_PREROLL) listener);
+        videoSink.connect((AppSink.NEW_SAMPLE) listener);
+        videoSink.connect((AppSink.NEW_PREROLL) listener);
 
-        videosink.setCaps(new Caps("video/x-raw(memory:GLMemory)"));
+        videoSink.setCaps(new Caps("video/x-raw(memory:GLMemory)"));
 
         addGLEventListener(new GLEventListener() {
 
@@ -98,7 +98,7 @@ public class GLVideoCanvas extends GLCanvas {
     }
 
     public Element getElement() {
-        return videosink;
+        return videoSink;
     }
 
     private class AppSinkListener implements AppSink.NEW_SAMPLE, AppSink.NEW_PREROLL {
@@ -128,6 +128,7 @@ public class GLVideoCanvas extends GLCanvas {
             if (frame.map(info, buffer)) {
                 switch (format) {
                 case RGB:
+                case RGBA:
                     if (frame.getTextures().length != 1) {
                         throw new AssertionError("Unexpected number of textures!");
                     }
