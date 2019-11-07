@@ -41,6 +41,11 @@ public class GLVideoFrame {
         if (textures == null) {
             int flags = GstBufferAPI.GST_MAP_READ | GstGLMemoryAPI.GST_MAP_GL;
             GstVideoInfoPtr gstVideoInfoPtr = Natives.getPointer(info).as(GstVideoInfoPtr.class, GstVideoInfoPtr::new);
+
+            // Workaround refCount problem induces by "ISSUE-171 - fix ownership and ref if
+            // previously cached unowned".
+            Natives.ref(buffer);
+
             if (GstVideoFrameAPI.GSTVIDEOFRAME_API.gst_video_frame_map(struct, gstVideoInfoPtr, buffer, flags)) {
                 textures = new int[buffer.getMemoryCount()];
                 for (int i = 0; i < textures.length; ++i) {
