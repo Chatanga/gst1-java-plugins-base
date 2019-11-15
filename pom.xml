@@ -35,6 +35,10 @@
 
 	<dependencies>
 
+		<!--
+		Manually install from https://github.com/Chatanga/gst1-java-core
+		(should be even with https://github.com/gstreamer-java/gst1-java-core).
+		-->
 		<dependency>
 			<groupId>org.freedesktop.gstreamer</groupId>
 			<artifactId>gst1-java-core</artifactId>
