@@ -36,6 +36,9 @@ public class GLVideoFrame {
      * Map a GL memory buffer into a GL video frame. It relies on the general video
      * frame mapping (actually hidden in {@link Buffer#map(boolean) and also in
      * {@link VideoFrame} but assuming it's a GL buffer.
+     * 
+     * Note that, once mapped, the sample from which the provided buffer has been
+     * retrieved could be disposed.
      */
     public boolean map(VideoInfo info, Buffer buffer) {
         if (textures == null) {
@@ -64,8 +67,8 @@ public class GLVideoFrame {
             GstVideoFrameAPI.GSTVIDEOFRAME_API.gst_video_frame_unmap(struct);
             /*
              * The 'unmap' will unref the buffer (if it did it in the 'map' in accordance to
-             * the GST_VIDEO_FRAME_MAP_FLAG_NO_REF flag) and this struct is not expected to
-             * keep a ref on it.
+             * the lack of GST_VIDEO_FRAME_MAP_FLAG_NO_REF flag) and this struct is not
+             * expected to keep a ref on it.
              */
             struct.buffer.disown();
             textures = null;

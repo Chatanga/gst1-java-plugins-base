@@ -146,7 +146,6 @@ public class GLVideoCanvas extends GLCanvas {
                 }
             } else {
                 System.err.println("Unmappable frame!");
-                frame.unmap(); // Useful?
             }
         }
 
